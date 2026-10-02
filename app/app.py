@@ -18,7 +18,7 @@ MODEL_PATH = os.path.join(
 )
 
 model = joblib.load(MODEL_PATH)
-
+explainer = shap.TreeExplainer(model)
 REFERENCE_PATH = os.path.join(
     os.path.dirname(__file__),
     "..",
