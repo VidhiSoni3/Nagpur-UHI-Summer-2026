@@ -82,7 +82,7 @@ help="Normalized Difference Vegetation Index"
 )
 
 with col2:
-ndbi = st.number_input(
+    ndbi = st.number_input(
 "NDBI",
 min_value=-1.0,
 max_value=1.0,
@@ -92,7 +92,7 @@ help="Normalized Difference Built-up Index"
 )
 
 with col3:
-t2m = st.number_input(
+    t2m = st.number_input(
 "Air Temperature (°C)",
 min_value=0.0,
 max_value=60.0,
