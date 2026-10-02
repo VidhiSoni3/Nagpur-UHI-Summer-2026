@@ -31,18 +31,23 @@ REFERENCE_PATH = os.path.join(
 daily_lst = pd.read_csv(REFERENCE_PATH)
 daily_lst["Date"] = pd.to_datetime(daily_lst["Date"])
 
-st.title("🌡️ Nagpur AI Heat Island Detection")
-
-st.write(
-    "AI-based prediction, heat-island anomaly detection "
-    "and climate-resilience analysis for Nagpur."
+st.markdown(
+""" <div style="padding: 0.5rem 0 1.5rem 0;"> <h1 style="margin-bottom: 0.2rem;">
+Nagpur Urban Heat Island Analysis </h1> <p style="font-size: 1.05rem; color: #666;">
+Machine-learning based Land Surface Temperature analysis
+for Nagpur, Maharashtra </p> </div>
+""",
+unsafe_allow_html=True
 )
 
-st.info(
-    "The AI model predicts Land Surface Temperature (LST). "
-    "UHI anomaly is calculated relative to the mean LST "
-    "observed across the study area on the selected date."
+st.caption(
+"Study period: March–May 2026 | "
+"Model: Random Forest Regression | "
+"Predictors: NDVI, NDBI, T2M"
 )
+
+st.divider()
+
 
 st.divider()
 
