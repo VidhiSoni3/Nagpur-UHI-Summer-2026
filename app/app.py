@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 import os
 import shap
+
 st.set_page_config(
     page_title="Nagpur AI Heat Island",
     page_icon="🌡️",
@@ -19,6 +20,7 @@ MODEL_PATH = os.path.join(
 
 model = joblib.load(MODEL_PATH)
 explainer = shap.TreeExplainer(model)
+
 REFERENCE_PATH = os.path.join(
     os.path.dirname(__file__),
     "..",
@@ -102,7 +104,13 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     })
 
     prediction = model.predict(input_data)[0]
+
     shap_values = explainer.shap_values(input_data)
+
+    if hasattr(shap_values, "values"):
+        shap_values = shap_values.values
+
+    shap_values = shap_values[0]
 
     uhi_anomaly = prediction - mean_lst
 
@@ -122,30 +130,6 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     )
 
     st.subheader("🔥 Heat-Island Assessment")
-    st.subheader("🧠 Explainable AI (SHAP)")
-
-shap_df = pd.DataFrame({
-    "Feature": input_data.columns,
-    "SHAP Contribution": shap_values[0]
-})
-
-shap_df["Impact"] = shap_df["SHAP Contribution"].apply(
-    lambda x: "Increases predicted LST"
-    if x > 0
-    else "Decreases predicted LST"
-)
-
-st.dataframe(
-    shap_df,
-    use_container_width=True
-)
-st.bar_chart(
-    shap_df.set_index("Feature")["SHAP Contribution"]
-)
-st.caption(
-    "SHAP values show how each input contributed to the model's "
-    "prediction relative to the Random Forest baseline."
-)
 
     col1, col2 = st.columns(2)
 
@@ -164,6 +148,33 @@ st.caption(
     st.metric(
         "Heat Category",
         category
+    )
+
+    st.subheader("🧠 Explainable AI (SHAP)")
+
+    shap_df = pd.DataFrame({
+        "Feature": input_data.columns,
+        "SHAP Contribution": shap_values
+    })
+
+    shap_df["Impact"] = shap_df["SHAP Contribution"].apply(
+        lambda x: "Increases predicted LST"
+        if x > 0
+        else "Decreases predicted LST"
+    )
+
+    st.dataframe(
+        shap_df,
+        use_container_width=True
+    )
+
+    st.bar_chart(
+        shap_df.set_index("Feature")["SHAP Contribution"]
+    )
+
+    st.caption(
+        "Positive SHAP values push the model prediction higher; "
+        "negative SHAP values push it lower."
     )
 
     st.subheader("📝 Interpretation")
