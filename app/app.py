@@ -10,38 +10,38 @@ page_icon="🌡️",
 layout="centered"
 )
 
+BASE_DIR = os.path.dirname(**file**)
+
 MODEL_PATH = os.path.join(
-os.path.dirname(__file__),
+BASE_DIR,
 "..",
 "model",
 "Nagpur_UHI_RandomForest_2026_small.pkl"
 )
 
-model = joblib.load(MODEL_PATH)
-explainer = shap.TreeExplainer(model)
-
 REFERENCE_PATH = os.path.join(
-os.path.dirname(__file__),
+BASE_DIR,
 "..",
 "data",
 "Nagpur_UHI_Daily_Mean_LST_2026.csv"
 )
 
+model = joblib.load(MODEL_PATH)
+explainer = shap.TreeExplainer(model)
+
 daily_lst = pd.read_csv(REFERENCE_PATH)
 daily_lst["Date"] = pd.to_datetime(daily_lst["Date"])
 
-st.markdown(
-""" <div style="padding: 0.5rem 0 1.5rem 0;"> <h1 style="margin-bottom: 0.2rem;">
-Nagpur Urban Heat Island Analysis </h1> <p style="font-size: 1.05rem; color: #666;">
-Machine-learning based Land Surface Temperature analysis
-for Nagpur, Maharashtra </p> </div>
-""",
-unsafe_allow_html=True
+st.title("Nagpur Urban Heat Island Analysis")
+
+st.write(
+"Machine-learning based Land Surface Temperature analysis "
+"for Nagpur, Maharashtra."
 )
 
 st.caption(
 "Study period: March–May 2026 | "
-"Model: Random Forest Regression | "
+"Random Forest Regression | "
 "Predictors: NDVI, NDBI, T2M"
 )
 
@@ -69,10 +69,7 @@ f"{mean_lst:.2f} °C"
 
 st.subheader("Environmental Inputs")
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    ndvi = st.number_input(
+ndvi = st.number_input(
 "NDVI",
 min_value=-1.0,
 max_value=1.0,
@@ -81,8 +78,7 @@ step=0.01,
 help="Normalized Difference Vegetation Index"
 )
 
-with col2:
-    ndbi = st.number_input(
+ndbi = st.number_input(
 "NDBI",
 min_value=-1.0,
 max_value=1.0,
@@ -91,8 +87,7 @@ step=0.01,
 help="Normalized Difference Built-up Index"
 )
 
-with col3:
-    t2m = st.number_input(
+t2m = st.number_input(
 "Air Temperature (°C)",
 min_value=0.0,
 max_value=60.0,
@@ -107,11 +102,14 @@ st.caption(
 
 if st.button("Detect Heat Condition", type="primary"):
 
-input_data = pd.DataFrame({
-    "NDVI": [ndvi],
-    "NDBI": [ndbi],
-    "T2M": [t2m]
-})
+
+input_data = pd.DataFrame(
+    {
+        "NDVI": [ndvi],
+        "NDBI": [ndbi],
+        "T2M": [t2m]
+    }
+)
 
 prediction = model.predict(input_data)[0]
 
@@ -134,10 +132,6 @@ elif uhi_anomaly <= 4:
     category = "Moderately Warmer"
 else:
     category = "Strongly Warmer"
-
-st.success(
-    f"Predicted LST: {prediction:.2f} °C"
-)
 
 st.subheader("Heat-Island Assessment")
 
@@ -163,19 +157,23 @@ st.metric(
 st.subheader("Model Explanation")
 
 st.caption(
-    "SHAP values indicate the contribution of each input variable "
-    "to the individual LST prediction."
+    "SHAP values indicate the contribution of each input "
+    "variable to this individual LST prediction."
 )
 
-shap_df = pd.DataFrame({
-    "Variable": input_data.columns,
-    "Contribution": shap_values
-})
+shap_df = pd.DataFrame(
+    {
+        "Variable": input_data.columns,
+        "Contribution": shap_values
+    }
+)
 
 shap_df["Effect"] = shap_df["Contribution"].apply(
-    lambda x: "Higher predicted LST"
-    if x > 0
-    else "Lower predicted LST"
+    lambda x: (
+        "Higher predicted LST"
+        if x > 0
+        else "Lower predicted LST"
+    )
 )
 
 shap_df["Contribution"] = shap_df["Contribution"].round(3)
@@ -201,8 +199,8 @@ if uhi_anomaly > 4:
 
 elif uhi_anomaly > 2:
     st.warning(
-        "The predicted LST is moderately above the "
-        "study-area mean for this observation date."
+        "The predicted LST is moderately above "
+        "the study-area mean for this observation date."
     )
 
 elif uhi_anomaly >= -2:
@@ -213,14 +211,14 @@ elif uhi_anomaly >= -2:
 
 elif uhi_anomaly >= -4:
     st.info(
-        "The predicted LST is moderately below the "
-        "study-area mean for this observation date."
+        "The predicted LST is moderately below "
+        "the study-area mean for this observation date."
     )
 
 else:
     st.info(
-        "The predicted LST is substantially below the "
-        "study-area mean for this observation date."
+        "The predicted LST is substantially below "
+        "the study-area mean for this observation date."
     )
 
 st.caption(
@@ -249,11 +247,4 @@ st.write(
 "R² = 0.7635"
 )
 
-st.caption(
-"Nagpur UHI Summer 2026"
-)
-
-
-st.caption(
-    "Nagpur UHI Summer 2026 | AI + Explainable Heat Analysis"
-)
+st.caption("Nagpur UHI Summer 2026")
