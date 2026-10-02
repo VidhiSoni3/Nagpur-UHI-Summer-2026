@@ -100,26 +100,22 @@ st.caption(
 "Enter environmental conditions for the selected observation date."
 )
 
-if st.button("Detect Heat Condition", type="primary"):
+run_prediction = st.button("Detect Heat Condition", type="primary")
 
-
-input_data = pd.DataFrame(
-    {
-        "NDVI": [ndvi],
-        "NDBI": [ndbi],
-        "T2M": [t2m]
-    }
-)
-
+if run_prediction:
+input_data = pd.DataFrame({
+"NDVI": [ndvi],
+"NDBI": [ndbi],
+"T2M": [t2m]
+})
 prediction = model.predict(input_data)[0]
-
 shap_values = explainer.shap_values(input_data)
 
+```
 if hasattr(shap_values, "values"):
     shap_values = shap_values.values
 
 shap_values = shap_values[0]
-
 uhi_anomaly = prediction - mean_lst
 
 if uhi_anomaly <= -4:
@@ -134,46 +130,19 @@ else:
     category = "Strongly Warmer"
 
 st.subheader("Heat-Island Assessment")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.metric(
-        "Predicted LST",
-        f"{prediction:.2f} °C"
-    )
-
-with col2:
-    st.metric(
-        "UHI Anomaly",
-        f"{uhi_anomaly:+.2f} °C"
-    )
-
-st.metric(
-    "Heat Category",
-    category
-)
+st.metric("Predicted LST", f"{prediction:.2f} °C")
+st.metric("UHI Anomaly", f"{uhi_anomaly:+.2f} °C")
+st.metric("Heat Category", category)
 
 st.subheader("Model Explanation")
 
-st.caption(
-    "SHAP values indicate the contribution of each input "
-    "variable to this individual LST prediction."
-)
-
-shap_df = pd.DataFrame(
-    {
-        "Variable": input_data.columns,
-        "Contribution": shap_values
-    }
-)
+shap_df = pd.DataFrame({
+    "Variable": input_data.columns,
+    "Contribution": shap_values
+})
 
 shap_df["Effect"] = shap_df["Contribution"].apply(
-    lambda x: (
-        "Higher predicted LST"
-        if x > 0
-        else "Lower predicted LST"
-    )
+    lambda x: "Higher predicted LST" if x > 0 else "Lower predicted LST"
 )
 
 shap_df["Contribution"] = shap_df["Contribution"].round(3)
@@ -196,25 +165,21 @@ if uhi_anomaly > 4:
         "The predicted LST is more than 4 °C above "
         "the study-area mean for this observation date."
     )
-
 elif uhi_anomaly > 2:
     st.warning(
         "The predicted LST is moderately above "
         "the study-area mean for this observation date."
     )
-
 elif uhi_anomaly >= -2:
     st.info(
         "The predicted LST is close to the study-area "
         "mean for this observation date."
     )
-
 elif uhi_anomaly >= -4:
     st.info(
         "The predicted LST is moderately below "
         "the study-area mean for this observation date."
     )
-
 else:
     st.info(
         "The predicted LST is substantially below "
@@ -225,7 +190,9 @@ st.caption(
     "UHI anomaly = predicted LST − study-area mean LST "
     "for the selected observation date."
 )
+```
 
+st.divider()
 
 st.divider()
 
