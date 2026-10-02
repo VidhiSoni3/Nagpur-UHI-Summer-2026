@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import pandas as pd
 import joblib
@@ -201,4 +201,3 @@ st.write(
 st.caption(
     "Nagpur UHI Summer 2026 | AI + Explainable Heat Analysis"
 )
-```
