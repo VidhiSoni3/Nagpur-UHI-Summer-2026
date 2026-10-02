@@ -107,7 +107,6 @@ st.caption(
 
 if st.button("Detect Heat Condition", type="primary"):
 
-```
 input_data = pd.DataFrame({
     "NDVI": [ndvi],
     "NDBI": [ndbi],
@@ -228,7 +227,7 @@ st.caption(
     "UHI anomaly = predicted LST − study-area mean LST "
     "for the selected observation date."
 )
-```
+
 
 st.divider()
 
