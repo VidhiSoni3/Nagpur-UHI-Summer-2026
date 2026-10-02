@@ -102,6 +102,7 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     })
 
     prediction = model.predict(input_data)[0]
+    shap_values = explainer.shap_values(input_data)
 
     uhi_anomaly = prediction - mean_lst
 
@@ -121,6 +122,30 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     )
 
     st.subheader("🔥 Heat-Island Assessment")
+    st.subheader("🧠 Explainable AI (SHAP)")
+
+shap_df = pd.DataFrame({
+    "Feature": input_data.columns,
+    "SHAP Contribution": shap_values[0]
+})
+
+shap_df["Impact"] = shap_df["SHAP Contribution"].apply(
+    lambda x: "Increases predicted LST"
+    if x > 0
+    else "Decreases predicted LST"
+)
+
+st.dataframe(
+    shap_df,
+    use_container_width=True
+)
+st.bar_chart(
+    shap_df.set_index("Feature")["SHAP Contribution"]
+)
+st.caption(
+    "SHAP values show how each input contributed to the model's "
+    "prediction relative to the Random Forest baseline."
+)
 
     col1, col2 = st.columns(2)
 
