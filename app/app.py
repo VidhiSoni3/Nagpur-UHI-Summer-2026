@@ -71,7 +71,44 @@ st.metric(
     f"{mean_lst:.2f} °C"
 )
 
-st.subheader("🌍 Environmental Inputs")
+st.subheader("Environmental Inputs")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+ndvi = st.number_input(
+"NDVI",
+min_value=-1.0,
+max_value=1.0,
+value=0.20,
+step=0.01,
+help="Normalized Difference Vegetation Index"
+)
+
+with col2:
+ndbi = st.number_input(
+"NDBI",
+min_value=-1.0,
+max_value=1.0,
+value=0.10,
+step=0.01,
+help="Normalized Difference Built-up Index"
+)
+
+with col3:
+t2m = st.number_input(
+"Air Temperature (°C)",
+min_value=0.0,
+max_value=60.0,
+value=35.0,
+step=0.1,
+help="NASA POWER 2-metre air temperature"
+)
+
+st.caption(
+"Enter environmental conditions for the selected observation date."
+)
+
 
 ndvi = st.number_input(
     "NDVI",
@@ -155,32 +192,36 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
         category
     )
 
-    st.subheader("🧠 Explainable AI (SHAP)")
+   st.subheader("Model Explanation")
 
-    shap_df = pd.DataFrame({
-        "Feature": input_data.columns,
-        "SHAP Contribution": shap_values
-    })
+st.caption(
+"SHAP values indicate the contribution of each input variable "
+"to the individual LST prediction."
+)
 
-    shap_df["Impact"] = shap_df["SHAP Contribution"].apply(
-        lambda x: "Increases predicted LST"
-        if x > 0
-        else "Decreases predicted LST"
-    )
+shap_df = pd.DataFrame({
+"Variable": input_data.columns,
+"Contribution": shap_values
+})
 
-    st.dataframe(
-        shap_df,
-        use_container_width=True
-    )
+shap_df["Effect"] = shap_df["Contribution"].apply(
+lambda x: "Higher predicted LST"
+if x > 0
+else "Lower predicted LST"
+)
 
-    st.bar_chart(
-        shap_df.set_index("Feature")["SHAP Contribution"]
-    )
+shap_df["Contribution"] = shap_df["Contribution"].round(3)
 
-    st.caption(
-        "Positive SHAP values push the model prediction higher; "
-        "negative SHAP values push it lower."
-    )
+st.dataframe(
+shap_df,
+hide_index=True,
+use_container_width=True
+)
+
+st.caption(
+"Positive values increase the model prediction; "
+"negative values decrease it."
+)
 
     st.subheader("📝 Interpretation")
 
