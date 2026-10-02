@@ -72,7 +72,7 @@ st.subheader("Environmental Inputs")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-ndvi = st.number_input(
+    ndvi = st.number_input(
 "NDVI",
 min_value=-1.0,
 max_value=1.0,
