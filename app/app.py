@@ -11,7 +11,7 @@ layout="centered"
 )
 
 MODEL_PATH = os.path.join(
-os.path.dirname(**file**),
+os.path.dirname(_file_),
 "..",
 "model",
 "Nagpur_UHI_RandomForest_2026_small.pkl"
