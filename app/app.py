@@ -11,7 +11,7 @@ layout="centered"
 )
 
 MODEL_PATH = os.path.join(
-os.path.dirname(_file_),
+os.path.dirname(__file__),
 "..",
 "model",
 "Nagpur_UHI_RandomForest_2026_small.pkl"
@@ -21,7 +21,7 @@ model = joblib.load(MODEL_PATH)
 explainer = shap.TreeExplainer(model)
 
 REFERENCE_PATH = os.path.join(
-os.path.dirname(**file**),
+os.path.dirname(__file__),
 "..",
 "data",
 "Nagpur_UHI_Daily_Mean_LST_2026.csv"
