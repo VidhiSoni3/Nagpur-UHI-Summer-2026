@@ -1,4 +1,196 @@
-elif uhi_anomaly > 2:
+```python
+import streamlit as st
+import pandas as pd
+import joblib
+import os
+
+# --------------------------------------------------
+# Page configuration
+# --------------------------------------------------
+
+st.set_page_config(
+    page_title="Nagpur AI Heat Island",
+    page_icon="🌡️",
+    layout="centered"
+)
+
+# --------------------------------------------------
+# Load model
+# --------------------------------------------------
+
+MODEL_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "model",
+    "Nagpur_UHI_RandomForest_2026_small.pkl"
+)
+
+model = joblib.load(MODEL_PATH)
+
+# --------------------------------------------------
+# Load daily reference LST
+# --------------------------------------------------
+
+REFERENCE_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "data",
+    "Nagpur_UHI_Daily_Mean_LST_2026.csv"
+)
+
+daily_lst = pd.read_csv(REFERENCE_PATH)
+daily_lst["Date"] = pd.to_datetime(daily_lst["Date"])
+
+# --------------------------------------------------
+# Title
+# --------------------------------------------------
+
+st.title("🌡️ Nagpur AI Heat Island Detection")
+
+st.write(
+    "AI-based prediction, heat-island anomaly detection "
+    "and climate-resilience analysis for Nagpur."
+)
+
+st.info(
+    "The AI model predicts Land Surface Temperature (LST). "
+    "UHI anomaly is calculated relative to the mean LST "
+    "observed across the study area on the selected date."
+)
+
+st.divider()
+
+# --------------------------------------------------
+# Observation date
+# --------------------------------------------------
+
+st.subheader("📅 Observation Date")
+
+selected_date = st.selectbox(
+    "Select a Landsat observation date",
+    daily_lst["Date"].dt.date.tolist()
+)
+
+selected_date = pd.Timestamp(selected_date)
+
+reference_row = daily_lst[
+    daily_lst["Date"] == selected_date
+]
+
+mean_lst = reference_row["Mean_LST"].iloc[0]
+
+st.metric(
+    "Study-area Mean LST",
+    f"{mean_lst:.2f} °C"
+)
+
+# --------------------------------------------------
+# Environmental inputs
+# --------------------------------------------------
+
+st.subheader("🌍 Environmental Inputs")
+
+ndvi = st.number_input(
+    "NDVI",
+    min_value=-1.0,
+    max_value=1.0,
+    value=0.20,
+    step=0.01,
+    help="Normalized Difference Vegetation Index"
+)
+
+ndbi = st.number_input(
+    "NDBI",
+    min_value=-1.0,
+    max_value=1.0,
+    value=0.10,
+    step=0.01,
+    help="Normalized Difference Built-up Index"
+)
+
+t2m = st.number_input(
+    "T2M (°C)",
+    min_value=0.0,
+    max_value=60.0,
+    value=35.0,
+    step=0.1,
+    help="NASA POWER 2-metre air temperature"
+)
+
+# --------------------------------------------------
+# Prediction
+# --------------------------------------------------
+
+if st.button("🔍 Detect Heat Condition", type="primary"):
+
+    input_data = pd.DataFrame({
+        "NDVI": [ndvi],
+        "NDBI": [ndbi],
+        "T2M": [t2m]
+    })
+
+    prediction = model.predict(input_data)[0]
+
+    # Relative UHI anomaly
+    uhi_anomaly = prediction - mean_lst
+
+    # --------------------------------------------------
+    # Heat classification
+    # --------------------------------------------------
+
+    if uhi_anomaly <= -4:
+        category = "Strongly Cooler"
+    elif uhi_anomaly <= -2:
+        category = "Moderately Cooler"
+    elif uhi_anomaly < 2:
+        category = "Near Average"
+    elif uhi_anomaly <= 4:
+        category = "Moderately Warmer"
+    else:
+        category = "Strongly Warmer"
+
+    st.success(
+        f"Predicted LST: {prediction:.2f} °C"
+    )
+
+    # --------------------------------------------------
+    # Heat-island assessment
+    # --------------------------------------------------
+
+    st.subheader("🔥 Heat-Island Assessment")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "Predicted LST",
+            f"{prediction:.2f} °C"
+        )
+
+    with col2:
+        st.metric(
+            "UHI Anomaly",
+            f"{uhi_anomaly:+.2f} °C"
+        )
+
+    st.metric(
+        "Heat Category",
+        category
+    )
+
+    # --------------------------------------------------
+    # Interpretation
+    # --------------------------------------------------
+
+    st.subheader("📝 Interpretation")
+
+    if uhi_anomaly > 4:
+        st.warning(
+            "The predicted LST is more than 4 °C above "
+            "the study-area mean for this observation date."
+        )
+
+    elif uhi_anomaly > 2:
         st.warning(
             "The predicted LST is moderately above the "
             "study-area mean for this observation date."
@@ -30,7 +222,7 @@ elif uhi_anomaly > 2:
 st.divider()
 
 # --------------------------------------------------
-# About
+# About the AI model
 # --------------------------------------------------
 
 st.subheader("🤖 About the AI Model")
@@ -54,4 +246,4 @@ st.write(
 st.caption(
     "Nagpur UHI Summer 2026 | AI + Explainable Heat Analysis"
 )
-
+```
