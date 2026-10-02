@@ -10,7 +10,7 @@ page_icon="🌡️",
 layout="centered"
 )
 
-BASE_DIR = os.path.dirname(**file**)
+BASE_DIR = os.path.dirname(__file__)
 
 MODEL_PATH = os.path.join(
 BASE_DIR,
