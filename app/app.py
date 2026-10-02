@@ -4,19 +4,11 @@ import pandas as pd
 import joblib
 import os
 
-# --------------------------------------------------
-# Page configuration
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="Nagpur AI Heat Island",
     page_icon="🌡️",
     layout="centered"
 )
-
-# --------------------------------------------------
-# Load model
-# --------------------------------------------------
 
 MODEL_PATH = os.path.join(
     os.path.dirname(__file__),
@@ -27,10 +19,6 @@ MODEL_PATH = os.path.join(
 
 model = joblib.load(MODEL_PATH)
 
-# --------------------------------------------------
-# Load daily reference LST
-# --------------------------------------------------
-
 REFERENCE_PATH = os.path.join(
     os.path.dirname(__file__),
     "..",
@@ -40,10 +28,6 @@ REFERENCE_PATH = os.path.join(
 
 daily_lst = pd.read_csv(REFERENCE_PATH)
 daily_lst["Date"] = pd.to_datetime(daily_lst["Date"])
-
-# --------------------------------------------------
-# Title
-# --------------------------------------------------
 
 st.title("🌡️ Nagpur AI Heat Island Detection")
 
@@ -59,10 +43,6 @@ st.info(
 )
 
 st.divider()
-
-# --------------------------------------------------
-# Observation date
-# --------------------------------------------------
 
 st.subheader("📅 Observation Date")
 
@@ -83,10 +63,6 @@ st.metric(
     "Study-area Mean LST",
     f"{mean_lst:.2f} °C"
 )
-
-# --------------------------------------------------
-# Environmental inputs
-# --------------------------------------------------
 
 st.subheader("🌍 Environmental Inputs")
 
@@ -117,10 +93,6 @@ t2m = st.number_input(
     help="NASA POWER 2-metre air temperature"
 )
 
-# --------------------------------------------------
-# Prediction
-# --------------------------------------------------
-
 if st.button("🔍 Detect Heat Condition", type="primary"):
 
     input_data = pd.DataFrame({
@@ -131,12 +103,7 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
 
     prediction = model.predict(input_data)[0]
 
-    # Relative UHI anomaly
     uhi_anomaly = prediction - mean_lst
-
-    # --------------------------------------------------
-    # Heat classification
-    # --------------------------------------------------
 
     if uhi_anomaly <= -4:
         category = "Strongly Cooler"
@@ -152,10 +119,6 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     st.success(
         f"Predicted LST: {prediction:.2f} °C"
     )
-
-    # --------------------------------------------------
-    # Heat-island assessment
-    # --------------------------------------------------
 
     st.subheader("🔥 Heat-Island Assessment")
 
@@ -177,10 +140,6 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
         "Heat Category",
         category
     )
-
-    # --------------------------------------------------
-    # Interpretation
-    # --------------------------------------------------
 
     st.subheader("📝 Interpretation")
 
@@ -220,10 +179,6 @@ if st.button("🔍 Detect Heat Condition", type="primary"):
     )
 
 st.divider()
-
-# --------------------------------------------------
-# About the AI model
-# --------------------------------------------------
 
 st.subheader("🤖 About the AI Model")
 
