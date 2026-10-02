@@ -109,34 +109,6 @@ st.caption(
 "Enter environmental conditions for the selected observation date."
 )
 
-
-ndvi = st.number_input(
-    "NDVI",
-    min_value=-1.0,
-    max_value=1.0,
-    value=0.20,
-    step=0.01,
-    help="Normalized Difference Vegetation Index"
-)
-
-ndbi = st.number_input(
-    "NDBI",
-    min_value=-1.0,
-    max_value=1.0,
-    value=0.10,
-    step=0.01,
-    help="Normalized Difference Built-up Index"
-)
-
-t2m = st.number_input(
-    "T2M (°C)",
-    min_value=0.0,
-    max_value=60.0,
-    value=35.0,
-    step=0.1,
-    help="NASA POWER 2-metre air temperature"
-)
-
 if st.button("🔍 Detect Heat Condition", type="primary"):
 
     input_data = pd.DataFrame({
