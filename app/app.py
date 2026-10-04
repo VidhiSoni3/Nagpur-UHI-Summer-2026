@@ -521,7 +521,7 @@ with tab_explanation:
         unsafe_allow_html=True,
     )
     st.markdown(
-        '<div class="section-subtitle">The result is influenced by vegetation, built-up intensity and air temperature.</div>',
+        '<div class="section-subtitle">These three conditions helped shape the estimated surface temperature.</div>',
         unsafe_allow_html=True,
     )
 
@@ -531,40 +531,69 @@ with tab_explanation:
     })
 
     explanation_df["Strength"] = explanation_df["Influence"].abs()
+    explanation_df = explanation_df.sort_values("Strength", ascending=False)
 
-    explanation_df = explanation_df.sort_values(
-        "Strength",
-        ascending=False,
-    )
+    st.markdown("### What influenced this estimate?")
 
-    chart_df = explanation_df.set_index("Factor")[["Influence"]]
+    for _, row in explanation_df.iterrows():
+        factor = row["Factor"]
+        influence = float(row["Influence"])
 
-    st.bar_chart(
-        chart_df,
-        width="stretch",
-    )
+        if influence > 0:
+            direction_label = "Pushed the estimate higher"
+            direction_icon = "↗️"
+        elif influence < 0:
+            direction_label = "Pushed the estimate lower"
+            direction_icon = "↘️"
+        else:
+            direction_label = "Little influence on this estimate"
+            direction_icon = "→"
 
-    st.markdown("### Main influence")
+        st.markdown(
+            f"""
+            <div class="info-card" style="margin-bottom:0.75rem;">
+                <h4>{factor}</h4>
+                <p style="font-weight:700;font-size:1rem;">
+                    {direction_icon} {direction_label}
+                </p>
+                <p style="font-weight:400;font-size:0.88rem;color:#687078;">
+                    Relative influence for the selected conditions: {abs(influence):.2f} °C
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     strongest = explanation_df.iloc[0]
     strongest_name = strongest["Factor"]
     strongest_value = float(strongest["Influence"])
 
     if strongest_value > 0:
-        direction = "is contributing to a higher estimated surface temperature."
+        main_message = (
+            f"{strongest_name} was the strongest influence among the selected "
+            "conditions and pushed the estimate upward."
+        )
+    elif strongest_value < 0:
+        main_message = (
+            f"{strongest_name} was the strongest influence among the selected "
+            "conditions and pushed the estimate downward."
+        )
     else:
-        direction = "is contributing to a lower estimated surface temperature."
+        main_message = (
+            f"{strongest_name} had the strongest relative influence, but its "
+            "effect was close to neutral for this estimate."
+        )
 
-    st.info(
-        f"{strongest_name} has the strongest influence among the selected conditions and {direction}"
-    )
+    st.markdown("### Main influence")
+    st.info(main_message)
 
-    st.markdown("### How to read the chart")
+    st.markdown("### How to understand this")
 
     st.write(
-        "Bars extending upward indicate an influence toward a higher estimated surface temperature. "
-        "Bars extending downward indicate an influence toward a lower estimated surface temperature. "
-        "The explanation describes the estimate; it does not prove that one factor directly causes the temperature change."
+        "A factor that pushes the estimate higher is associated with a warmer "
+        "result for the selected conditions. A factor that pushes it lower is "
+        "associated with a cooler result. These influences explain the estimate "
+        "but do not prove that one factor directly causes the temperature change."
     )
 
 # ---------------------------------------------------------
